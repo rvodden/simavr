@@ -35,17 +35,27 @@
 #define DBG(x)
 #endif
 
-static uint8_t _usi_get_counter(struct avr_t * avr, avr_usi_t * p)
+static uint8_t 
+_usi_get_counter(
+        struct avr_t * avr,
+        avr_usi_t * p)
 {
 	return avr->data[p->r_usisr] & 0xF;
 }
 
-static void _usi_set_counter(struct avr_t * avr, avr_usi_t * p, uint8_t new_val)
+static void 
+_usi_set_counter(
+        struct avr_t * avr, 
+        avr_usi_t * p, 
+        uint8_t new_val)
 {
 	avr->data[p->r_usisr] = (_usi_get_counter(avr, p) & ~0xF) | (new_val & 0xF);
 }
 
-static void _avr_usi_clock_counter(struct avr_t * avr, avr_usi_t * p)
+static void 
+_avr_usi_clock_counter(
+        struct avr_t * avr, 
+        avr_usi_t * p)
 {
 	uint8_t counter_val = _usi_get_counter(avr, p);
 	counter_val++;
@@ -60,7 +70,11 @@ static void _avr_usi_clock_counter(struct avr_t * avr, avr_usi_t * p)
 	}
 }
 
-static void _avr_usi_set_usidr(struct avr_t * avr, avr_usi_t * p, uint8_t new_val)
+static void 
+_avr_usi_set_usidr(
+        struct avr_t * avr, 
+        avr_usi_t * p, 
+        uint8_t new_val)
 {
 	DBG(printf("USI ------------------- 	USIDR new value 0x%02X\n", new_val));
 	bool top_set = avr->data[p->r_usidr] & 0x80;
@@ -79,13 +93,20 @@ static void _avr_usi_set_usidr(struct avr_t * avr, avr_usi_t * p, uint8_t new_va
 	}
 }
 
-static void _avr_usi_clock_usidr(struct avr_t * avr, avr_usi_t * p)
+static void 
+_avr_usi_clock_usidr(
+        struct avr_t * avr, 
+        avr_usi_t * p)
 {
 	// in_bit0 is shifted into low bit
 	_avr_usi_set_usidr(avr, p, ((avr->data[p->r_usidr] & ~0x80) << 1) | (p->in_bit0 ? 1 : 0));
 }
 
-static void _avr_usi_disconnect_irqs(struct avr_t * avr, avr_usi_t * p, uint8_t old_wm)
+static void 
+_avr_usi_disconnect_irqs(
+        struct avr_t * avr, 
+        avr_usi_t * p, 
+        uint8_t old_wm)
 {
 	switch(old_wm) {
 		case USI_WM_OFF:
@@ -110,7 +131,11 @@ static void _avr_usi_disconnect_irqs(struct avr_t * avr, avr_usi_t * p, uint8_t 
 	}
 }
 
-static void _avr_usi_connect_irqs(struct avr_t * avr, avr_usi_t * p, uint8_t new_wm)
+static void 
+_avr_usi_connect_irqs(
+        struct avr_t * avr, 
+        avr_usi_t * p, 
+        uint8_t new_wm)
 {
 	switch(new_wm) {
 		case USI_WM_OFF:
@@ -139,7 +164,11 @@ static void _avr_usi_connect_irqs(struct avr_t * avr, avr_usi_t * p, uint8_t new
 // USISR - status register
 // -------------------------------------------------------------------------------------------------
 
-static uint8_t avr_usi_read_usisr(struct avr_t * avr, avr_io_addr_t addr, void * param)
+static uint8_t 
+avr_usi_read_usisr(
+        struct avr_t * avr, 
+        avr_io_addr_t addr, 
+        void * param)
 {
 	avr_usi_t * p = (avr_usi_t *)param;
 	// high 3 bits and counter are stored normally
@@ -152,7 +181,12 @@ static uint8_t avr_usi_read_usisr(struct avr_t * avr, avr_io_addr_t addr, void *
 	return v;
 }
 
-static void avr_usi_write_usisr(struct avr_t * avr, avr_io_addr_t addr, uint8_t v, void * param)
+static void 
+avr_usi_write_usisr(
+        struct avr_t * avr, 
+        avr_io_addr_t addr, 
+        uint8_t v, 
+        void * param)
 {
 	avr_usi_t * p = (avr_usi_t *)param;
 	DBG(printf("USI ------------------- avr_usi_write_usisr = %02x\n", v));
@@ -179,7 +213,11 @@ static void avr_usi_write_usisr(struct avr_t * avr, avr_io_addr_t addr, uint8_t 
 
 #define USICR_CLK_MASK (_BV(p->usiclk) | _BV(p->usitc))
 
-static uint8_t avr_usi_read_usicr(struct avr_t * avr, avr_io_addr_t addr, void * param)
+static uint8_t 
+avr_usi_read_usicr(
+        struct avr_t * avr, 
+        avr_io_addr_t addr, 
+        void * param)
 {
 	avr_usi_t * p = (avr_usi_t *)param;
 	// high 6 bits are R/W
@@ -190,7 +228,12 @@ static uint8_t avr_usi_read_usicr(struct avr_t * avr, avr_io_addr_t addr, void *
 	return v;
 }
 
-static void avr_usi_write_usicr(struct avr_t * avr, avr_io_addr_t addr, uint8_t v, void * param)
+static void 
+avr_usi_write_usicr(
+        struct avr_t * avr, 
+        avr_io_addr_t addr, 
+        uint8_t v, 
+        void * param)
 {
 	avr_usi_t * p = (avr_usi_t *)param;
 	DBG(printf("USI ------------------- avr_usi_write_usicr = %02x\n", v));
@@ -236,7 +279,12 @@ static void avr_usi_write_usicr(struct avr_t * avr, avr_io_addr_t addr, uint8_t 
 // USIBR - buffered data register
 // -------------------------------------------------------------------------------------------------
 
-static void avr_usi_write_usibr(struct avr_t * avr, avr_io_addr_t addr, uint8_t v, void * param)
+static void 
+avr_usi_write_usibr(
+        struct avr_t * avr, 
+        avr_io_addr_t addr, 
+        uint8_t v, 
+        void * param)
 {
 	// it's read-only, so into the memory hole it goes.
 }
@@ -245,7 +293,12 @@ static void avr_usi_write_usibr(struct avr_t * avr, avr_io_addr_t addr, uint8_t 
 // USIDR - data register
 // -------------------------------------------------------------------------------------------------
 
-static void avr_usi_write_usidr(struct avr_t * avr, avr_io_addr_t addr, uint8_t v, void * param)
+static void 
+avr_usi_write_usidr(
+        struct avr_t * avr, 
+        avr_io_addr_t addr, 
+        uint8_t v, 
+        void * param)
 {
 	_avr_usi_set_usidr(avr, (avr_usi_t *)param, v);
 }
@@ -254,7 +307,11 @@ static void avr_usi_write_usidr(struct avr_t * avr, avr_io_addr_t addr, uint8_t 
 // Setup
 // -------------------------------------------------------------------------------------------------
 
-static void _avr_usi_di_changed(struct avr_irq_t * irq, uint32_t value, void * param)
+static void 
+_avr_usi_di_changed(
+        struct avr_irq_t * irq, 
+        uint32_t value, 
+        void * param)
 {
 	avr_usi_t * p = (avr_usi_t *)param;
 	// avr_t * avr = p->io.avr;
@@ -264,7 +321,11 @@ static void _avr_usi_di_changed(struct avr_irq_t * irq, uint32_t value, void * p
 	p->in_bit0 = value;
 }
 
-static void _avr_usi_usck_changed(struct avr_irq_t * irq, uint32_t value, void * param)
+static void 
+_avr_usi_usck_changed(
+        struct avr_irq_t * irq, 
+        uint32_t value, 
+        void * param)
 {
 	avr_usi_t * p = (avr_usi_t *)param;
 	avr_t * avr = p->io.avr;
@@ -298,7 +359,11 @@ static void _avr_usi_usck_changed(struct avr_irq_t * irq, uint32_t value, void *
 	}
 }
 
-static void _avr_usi_tim0_comp(struct avr_irq_t * irq, uint32_t value, void * param)
+static void 
+_avr_usi_tim0_comp(
+        struct avr_irq_t * irq, 
+        uint32_t value, 
+        void * param)
 {
 	avr_usi_t * p = (avr_usi_t *)param;
 	avr_t * avr = p->io.avr;
@@ -312,7 +377,9 @@ static void _avr_usi_tim0_comp(struct avr_irq_t * irq, uint32_t value, void * pa
 	}
 }
 
-void avr_usi_reset(struct avr_io_t *io)
+void 
+avr_usi_reset(
+        struct avr_io_t *io)
 {
 	avr_usi_t * p = (avr_usi_t *)io;
 	struct avr_t * avr = p->io.avr;
@@ -352,7 +419,10 @@ static avr_io_t _io = {
 	.irq_names = irq_names,
 };
 
-void avr_usi_init(avr_t * avr, avr_usi_t * p)
+void 
+avr_usi_init(
+        avr_t * avr, 
+        avr_usi_t * p)
 {
 	p->io = _io;
 	avr_register_io(avr, &p->io);
